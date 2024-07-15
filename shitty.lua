@@ -45,7 +45,7 @@ local function newParser()
 		elseif arg1 == "var" or arg1 == "variable" then
 			newstr = variables[split[2]]
 		elseif arg1 == "func" or arg1 == "function" then
-			newstr = function() parse(variables[{split[2]}]) end
+			newstr = function() parse(variables[split[2]]) end
 		elseif arg1 == "true" then
 			newstr = true
 		elseif arg1 == "false" then
@@ -103,14 +103,14 @@ local function newParser()
 		end,
 		startfunc = function(split)
 			currentFunc = split[2]
-			variables[{currentFunc}] = ""
+			variables[currentFunc] = ""
 		end,
 		startsubfunc = function(split)
 			currentSubFunc = split[2]
-			variables[{currentSubFunc}] = ""
+			variables[currentSubFunc] = ""
 		end,
 		exec = function(split)
-			parse(variables[{split[2]}])
+			parse(variables[split[2]])
 		end,
 		runlua = function(split)
 			local func = variables[split[2]]
@@ -252,15 +252,15 @@ local function newParser()
 		if command == "endfunc" and currentFunc then
 			currentFunc = ""
 		elseif currentFunc ~= "" then
-			variables[{currentFunc}] = variables[{currentFunc}].."\n"..line
+			variables[currentFunc] = variables[currentFunc].."\n"..line
 		elseif command == "endsubfunc" and currentSubFunc then
 			currentSubFunc = ""
 		elseif currentSubFunc ~= "" then
-			variables[{currentSubFunc}] = variables[{currentSubFunc}].."\n"..line
+			variables[currentSubFunc] = variables[currentSubFunc].."\n"..line
 		elseif commands[command] then
 			local success, response = pcall(commands[command],split)
 			if not success then
-				warn(line,response)
+				print(line,response)
 			end
 		end
 	end

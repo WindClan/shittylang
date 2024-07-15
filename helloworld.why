@@ -1,0 +1,2 @@
+setvar var string Hello, World!
+out var

@@ -1,4 +1,4 @@
-function mysplit(inputstr, sep)
+function mysplit(inputstr, sep) --https://stackoverflow.com/a/7615129
 	local t = {}
 	for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
 		table.insert(t, str)

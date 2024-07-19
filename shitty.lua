@@ -273,4 +273,21 @@ local function newParser()
 	
 	return parse
 end
-return newParser
+
+if pcall(debug.getlocal, 4, 1) then
+	return newParser
+else
+	local args = {...}
+	local path = ""
+	for i,v in pairs(args) do
+		if i ~= 1 then
+			path = path.." "
+		end
+		path = path..v
+	end
+	local file = fs.open(path,"r")
+	local dat = file.readAll()
+	file.close()
+	newParser()(dat)
+end
+

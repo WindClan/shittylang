@@ -1,3 +1,4 @@
+-----------------------------------------------------------------------------
 function mysplit(inputstr, sep) --https://stackoverflow.com/a/7615129
 	local t = {}
 	for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
@@ -6,6 +7,31 @@ function mysplit(inputstr, sep) --https://stackoverflow.com/a/7615129
 	return t
 end
 
+------------------------------------------------------------------------------
+
+local isComputerCraft = color and colour and peripheral and peripheral.wrap and redstone and textutils
+
+local function open(fileName,mode)
+	if isComputerCraft then
+		return fs.open(fileName,mode)
+	else
+		return io.open(fileName,mode)
+	end
+end
+local function readall(handle)
+	if isComputerCraft then
+		return handle.readAll()
+	else
+		return handle:read("*a")
+	end
+end
+local function close(handle)
+	if isComputerCraft then
+		return handle.close()
+	else
+		return handle:close()
+	end
+end
 
 local function newParser()
 	local variables = {}
@@ -285,9 +311,9 @@ else
 		end
 		path = path..v
 	end
-	local file = fs.open(path,"r")
-	local dat = file.readAll()
-	file.close()
+	local file = open(path,"r")
+	local dat = readall(file)
+	close(file)
 	newParser()(dat)
 end
 

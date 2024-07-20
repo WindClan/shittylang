@@ -9,7 +9,8 @@ end
 
 ------------------------------------------------------------------------------
 
-local isComputerCraft = color and colour and peripheral and peripheral.wrap and redstone and textutils
+local isComputerCraft = colors and colours and peripheral and peripheral.wrap and redstone and textutils
+local printErrorFunc = isComputerCraft and printError or print
 
 local function open(fileName,mode)
 	if isComputerCraft then
@@ -57,7 +58,7 @@ local function newParser()
 		elseif arg1 == "number" or arg1 == "num" then
 			newstr = tonumber(split[2])
 		elseif arg1 == "obj" or arg1 == "object" then
-			local last = getfenv()
+			local last = getfenv(0)
 			for i,v in pairs(mysplit(split[2],".")) do
 				last = last[v]
 			end
@@ -105,10 +106,10 @@ local function newParser()
 			table.remove(split,1)
 			table.remove(split,1)
 			local newstr = parseVariables(split)
-			getfenv()["_G"][name] = newstr
+			getfenv(0)["_G"][name] = newstr
 		end,
 		export = function(split)
-			local last = getfenv()
+			local last = getfenv(0)
 			local newSplit = mysplit(split[3],".")
 			for i,v in pairs(newSplit) do
 				if i ~= #newSplit then
@@ -286,7 +287,7 @@ local function newParser()
 		elseif commands[command] then
 			local success, response = pcall(commands[command],split)
 			if not success then
-				print(line,response)
+				printErrorFunc(line,response)
 			end
 		end
 	end

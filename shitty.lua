@@ -301,7 +301,7 @@ local function newParser()
 	return parse
 end
 
-if pcall(debug.getlocal, 4, 1) then
+if pcall(debug.getlocal, 4, 1) then --check from https://stackoverflow.com/a/49376823
 	return newParser
 else
 	local args = {...}

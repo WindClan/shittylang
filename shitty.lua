@@ -93,9 +93,7 @@ local function newParser()
 			local newstr = parseVariables(split)
 			variables[name] = newstr
 		end,
-		rem = function(split)
-			--adding this here just incase i add erroring for non-existent statements
-		end,
+		rem = function(split) end,
 		addarg = function(split)
 			table.remove(split,1)
 			local newstr = parseVariables(split)
@@ -117,6 +115,16 @@ local function newParser()
 				end
 			end
 			last[newSplit[#newSplit]] = variables[split[2]]
+		end,
+		error = function(split)
+			local last = getfenv(0)
+			table.remove(split,1)
+			local str = split[1]
+			table.remove(split,1)
+			for i,v in pairs(split) do
+				str = str.." "..v
+			end
+			error(str,0)
 		end,
 		expvar = function(split)
 			local last = variables
@@ -141,9 +149,13 @@ local function newParser()
 		end,
 		runlua = function(split)
 			local func = variables[split[2]]
-			local a = func(table.unpack(args))
-			if split[3] then
-				variables[split[3]] = a
+			local a = table.pack(func(table.unpack(args)))
+			table.remove(split,1)
+			table.remove(split,1)
+			for i,v in pairs(a) do
+				if split[i] then
+					variables[split[i]] = v
+				end
 			end
 			args = {}
 		end,
@@ -202,7 +214,12 @@ local function newParser()
 			variables[split[#split]] = last
 		end, 
 		out = function(split)
-			print(variables[split[2]])
+			table.remove(split,1)
+			local varTable = {}
+			for i,v in pairs(split) do
+				varTable[i] = variables[v]
+			end
+			print(table.unpack(varTable))
 		end,
 		forever = function(split)
 			while true do
@@ -287,14 +304,23 @@ local function newParser()
 		elseif commands[command] then
 			local success, response = pcall(commands[command],split)
 			if not success then
-				printErrorFunc(line,response)
+				printErrorFunc(response)
+				return false, line
 			end
+		elseif command:sub(1,2) ~= "#!" then
+			printErrorFunc("No such command \""..command.."\"")
+			return false, line
 		end
+		return true
 	end
 	function parse(line)
 		local split = mysplit(line:gsub("	",""),"\n")
 		for i,v in pairs(split) do
-			parseLine(v)
+			local success,line = parseLine(v)
+			if not success then
+				printErrorFunc("Error at line "..i..": "..line)
+				break
+			end
 		end
 	end
 	

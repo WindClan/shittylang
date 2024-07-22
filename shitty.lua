@@ -38,6 +38,7 @@ local function newParser()
 	local variables = {}
 	local args = {}
 	local currentInst = nil
+	local inForeverLoop = false
 	local currentFunc = ""
 	local currentSubFunc = ""
 	local parse = nil
@@ -222,9 +223,21 @@ local function newParser()
 			print(table.unpack(varTable))
 		end,
 		forever = function(split)
-			while true do
+			inForeverLoop = true
+			while inForeverLoop do
 				parse(variables[split[2]])
 			end
+		end,
+		input = function(split)
+			variables[split[2]] = io.read()
+		end,
+		repeatUntil = function(split) end
+			while variables[split[3]] ~= variables[split[4]] do
+				parse(variables[split[2]])
+			end
+		end,
+		break = function(split)
+			inForeverLoop = false
 		end,
 		sleep = function(split)
 			sleep(tonumber(split[2]))
@@ -318,7 +331,7 @@ local function newParser()
 		for i,v in pairs(split) do
 			local success,line = parseLine(v)
 			if not success then
-				printErrorFunc("Error at line "..i..": "..line)
+				error("Error at line "..i..": "..line)
 				break
 			end
 		end

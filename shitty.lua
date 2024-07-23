@@ -231,7 +231,7 @@ local function newParser()
 		input = function(split)
 			variables[split[2]] = io.read()
 		end,
-		repeatUntil = function(split) end
+		repeatUntil = function(split)
 			while variables[split[3]] ~= variables[split[4]] do
 				parse(variables[split[2]])
 			end

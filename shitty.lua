@@ -236,7 +236,7 @@ local function newParser()
 				parse(variables[split[2]])
 			end
 		end,
-		break = function(split)
+		["break"] = function(split)
 			inForeverLoop = false
 		end,
 		sleep = function(split)
@@ -339,11 +339,10 @@ local function newParser()
 	
 	return parse
 end
-
-if pcall(debug.getlocal, 4, 1) then --check from https://stackoverflow.com/a/49376823
+local args = {...}
+if pcall(debug.getlocal, 4, 1) and #args == 0 then --check from https://stackoverflow.com/a/49376823 (modified)
 	return newParser
 else
-	local args = {...}
 	local path = ""
 	for i,v in pairs(args) do
 		if i ~= 1 then
@@ -356,4 +355,3 @@ else
 	close(file)
 	newParser()(dat)
 end
-

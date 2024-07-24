@@ -56,6 +56,8 @@ local function newParser()
 					newstr = newstr.." "..v
 				end
 			end
+		elseif arg1 == "space" then
+			newstr = " "
 		elseif arg1 == "number" or arg1 == "num" then
 			newstr = tonumber(split[2])
 		elseif arg1 == "obj" or arg1 == "object" then
@@ -231,7 +233,7 @@ local function newParser()
 		input = function(split)
 			variables[split[2]] = io.read()
 		end,
-		repeatUntil = function(split)
+		repeatuntil = function(split)
 			while variables[split[3]] ~= variables[split[4]] do
 				parse(variables[split[2]])
 			end
@@ -298,6 +300,8 @@ local function newParser()
 				parse(variables[split[5]])
 			end
 		end,
+		[""] = function(split) end,
+		[" "] = function(split) end
 	}
 
 	local function parseLine(line)

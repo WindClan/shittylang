@@ -1,0 +1,12 @@
+rem This is a more complex example of Hello World!
+setvar final string This text never prints!!!
+
+startfunc setFinalValue
+	setvar var1 string Hello, 
+	setvar var2 string World!
+	addstr var1 var2 final
+endfunc
+
+exec setFinalValue
+
+out final

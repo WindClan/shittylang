@@ -363,7 +363,7 @@ local function newParser()
 	return parse
 end
 local args = {...}
-if pcall(debug.getlocal, 4, 1) and #args == 0 then --check from https://stackoverflow.com/a/49376823 (modified)
+if pcall(debug.getlocal, 4, 1) then --check from https://stackoverflow.com/a/49376823 (modified)
 	return newParser
 else
 	local path = ""

@@ -59,7 +59,7 @@ local function newParser()
 		local arg1 = split[1]:lower()
 		local newstr
 		if arg1 == "string" or arg1 == "str" then
-			if not origin or string.gsub(origin,".[setvaraddarglob]* .* [string]* ","") == nil then
+			if not origin or string.gsub(origin,".[setvaraddarglob]- .- [string]- ","") == nil then
 				newstr = split[2]
 				for i,v in pairs(split) do
 					if i > 2 then
@@ -70,7 +70,7 @@ local function newParser()
 					end
 				end
 			else
-				newstr = string.gsub(origin,"[setvaraddarglob]* .* [string]* ","")
+				newstr = string.gsub(origin,"[setvaraddarglob]- .- [string]- ","")
 			end
 		elseif arg1 == "space" then
 			newstr = " "

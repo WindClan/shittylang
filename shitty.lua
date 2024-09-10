@@ -33,6 +33,12 @@ local function close(handle)
 	end
 end
 
+if not getfenv then
+	function getfenv(level) 
+		return _ENV
+	end
+end
+
 local function newParser()
 	local queue = {}
 	local variables = {}

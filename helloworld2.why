@@ -8,5 +8,4 @@ startfunc setFinalValue
 endfunc
 
 exec setFinalValue
-
 out final

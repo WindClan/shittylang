@@ -8,6 +8,54 @@ function mysplit(inputstr, sep) --https://stackoverflow.com/a/7615129
 end
 
 ------------------------------------------------------------------------------
+-- https://stackoverflow.com/a/25594410
+local function BitXOR(a,b)--Bitwise xor
+    local p,c=1,0
+    while a>0 and b>0 do
+        local ra,rb=a%2,b%2
+        if ra~=rb then c=c+p end
+        a,b,p=(a-ra)/2,(b-rb)/2,p*2
+    end
+    if a<b then a=b end
+    while a>0 do
+        local ra=a%2
+        if ra>0 then c=c+p end
+        a,p=(a-ra)/2,p*2
+    end
+    return c
+end
+
+local function BitOR(a,b)--Bitwise or
+    local p,c=1,0
+    while a+b>0 do
+        local ra,rb=a%2,b%2
+        if ra+rb>0 then c=c+p end
+        a,b,p=(a-ra)/2,(b-rb)/2,p*2
+    end
+    return c
+end
+
+local function BitNOT(n)
+    local p,c=1,0
+    while n>0 do
+        local r=n%2
+        if r<1 then c=c+p end
+        n,p=(n-r)/2,p*2
+    end
+    return c
+end
+
+local function BitAND(a,b)--Bitwise and
+    local p,c=1,0
+    while a>0 and b>0 do
+        local ra,rb=a%2,b%2
+        if ra+rb>1 then c=c+p end
+        a,b,p=(a-ra)/2,(b-rb)/2,p*2
+    end
+    return c
+end
+
+------------------------------------------------------------------------------
 
 local isComputerCraft = colors and colours and peripheral and peripheral.wrap and redstone and textutils
 local printErrorFunc = isComputerCraft and printError or print
@@ -114,7 +162,7 @@ local function newParser()
 			local newstr = parseVariables(split,origin)
 			variables[name] = newstr
 		end,
-		rem = function(origin,split) end,
+		rem = function(origin,split) end, --this is a comment
 		addarg = function(origin,split)
 			table.remove(split,1)
 			local newstr = parseVariables(split,origin)
@@ -304,19 +352,31 @@ local function newParser()
 				parse(variables[split[4]])
 			end
 		end,
-		["and"] = function(origin,split)
+		["ifand"] = function(origin,split)
 			if variables[split[2]] and variables[split[3]] then
 				parse(variables[split[4]])
 			elseif split[5] then
 				parse(variables[split[5]])
 			end
 		end,
-		["or"] = function(origin,split)
+		["ifor"] = function(origin,split)
 			if variables[split[2]] or variables[split[3]] then
 				parse(variables[split[4]])
 			elseif split[5] then
 				parse(variables[split[5]])
 			end
+		end,
+		["and"] = function(origin,split)
+			variables[split[4]] = BitAND(tonumber(split[2]),tonumber(split[3]))
+		end,
+		["or"] = function(origin,split)
+			variables[split[4]] = BitOR(tonumber(split[2]),tonumber(split[3]))
+		end,
+		["xor"] = function(origin,split)
+			variables[split[4]] = BitXOR(tonumber(split[2]),tonumber(split[3]))
+		end,
+		["not"] = function(origin,split)
+			variables[split[3]] = BitNOT(tonumber(split[2]))
 		end,
 		[""] = function(origin,split) end,
 		[" "] = function(origin,split) end
@@ -342,7 +402,7 @@ local function newParser()
 				printErrorFunc(response)
 				return false, line
 			end
-		elseif command:sub(1,2) ~= "#!" then
+		elseif command:sub(1,1) ~= "#" then
 			printErrorFunc("No such command \""..command.."\"")
 			return false, line
 		end

@@ -384,11 +384,11 @@ local function newParser()
 
 	local function parseLine(line)
 		local split = mysplit(line," ")
-		local command = split[1]:lower()
+		local command = split[1]:lower():gsub("[%p%c%s]", "")
 		if not command then
 			return
 		end
-		if command == "endfunc" and currentFunc then
+		if command == "endfunc" and currentFunc ~= "" then
 			currentFunc = ""
 		elseif currentFunc ~= "" then
 			variables[currentFunc] = variables[currentFunc].."\n"..line

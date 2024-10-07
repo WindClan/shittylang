@@ -286,7 +286,7 @@ local function newParser()
 			table.remove(split,1)
 			local varTable = {}
 			for i,v in pairs(split) do
-				varTable[i] = variables[v]
+				table.insert(varTable,variables[v])
 			end
 			print(table.unpack(varTable))
 		end,
@@ -383,6 +383,7 @@ local function newParser()
 	}
 
 	local function parseLine(line)
+		line = line:gsub("%c+","")
 		local split = mysplit(line," ")
 		local command = split[1]:lower():gsub("[%p%c%s]", "")
 		if not command then
@@ -409,7 +410,7 @@ local function newParser()
 		return true
 	end
 	function parse(line)
-		addToQueue(line:gsub("	",""))
+		addToQueue(line)
 		local i = 1
 		while true do
 			if #queue <= 0 then

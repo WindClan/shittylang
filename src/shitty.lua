@@ -272,6 +272,9 @@ local function newParser()
 			end
 			variables[split[#split]] = last
 		end,
+		mod = function(origin,split)
+			variables[split[4]] = variables[split[2]] % variables[split[3]]
+		end,
 		addstr = function(origin,split)
 			table.remove(split,1)
 			local last = ""
@@ -312,7 +315,7 @@ local function newParser()
 		end,
 		greater = function(origin,split)
 			if variables[split[2]] > variables[split[3]] then
-				parse(variables[split[4]])
+				parse(c)
 			elseif split[5] then
 				parse(variables[split[5]])
 			end

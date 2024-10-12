@@ -1,3 +1,10 @@
+---------------------shittylang Fantasy Computer edition---------------------
+--flavor of shitty designed for ComputerCraft and other lua fantasy computers
+--made because these changes designed to interface with CC should not be in
+--mainline shittylang, that breaks the engine independent thing main shitty 
+--has which I dont want. mostly the same as main shitty besides the addition
+--of syscalls and constants
+
 -----------------------------------------------------------------------------
 function mysplit(inputstr, sep) --https://stackoverflow.com/a/7615129
 	local t = {}
@@ -87,6 +94,13 @@ if not getfenv then
 	end
 end
 
+local varDenylist = {
+	["termX"] = true;
+	["termY"] = true;
+	["curX"] = true;
+	["curY"] = true;
+}
+
 local function newParser()
 	local queue = {}
 	local variables = {}
@@ -154,9 +168,43 @@ local function newParser()
 		return newstr
 	end
 
+	local syscalls = {
+		--terminal
+		write = term.write,
+		blit = term.blit,
+		curPos = term.setCursorPos,
+		clear = term.clear,
+		scroll = term.scroll,
+		--fs
+		open = fs.open,
+		list = fs.list,
+		find = fs.find,
+		isDir = fs.isDir,
+		attributes = fs.attributes,
+		capacity = fs.getCapacity,
+		freeSpace = fs.getFreeSpace,
+		delete = fs.delete,
+		makeDir = fs.makeDir,
+		--peripherals
+		getPeriph = peripheral.wrap,
+		findPeriphs = peripheral.find,
+		--string
+		match = string.match,
+		gmatch = string.gmatch,
+		sub = string.sub,
+		gsub = string.gsub,
+		--table
+		insert = table.insert,
+		pack = table.pack,
+		remove = table.remove,
+	}
+
 	local commands = {
 		setvar = function(origin,split)
 			local name = split[2]
+			if varDenylist[name] then
+				error("Disallowed var name: "+name,0)
+			end
 			table.remove(split,1)
 			table.remove(split,1)
 			local newstr = parseVariables(split,origin)
@@ -226,18 +274,18 @@ local function newParser()
 			close(a)
 			addToQueue(code)
 		end,
-		runlua = function(origin,split)
-			local func = variables[split[2]]
-			local a = table.pack(func(table.unpack(args)))
-			table.remove(split,1)
-			table.remove(split,1)
-			for i,v in pairs(a) do
-				if split[i] then
-					variables[split[i]] = v
-				end
-			end
-			args = {}
-		end,
+--		runlua = function(origin,split)
+--			local func = variables[split[2]]
+--			local a = table.pack(func(table.unpack(args)))
+--			table.remove(split,1)
+--			table.remove(split,1)
+--			for i,v in pairs(a) do
+--				if split[i] then
+--					variables[split[i]] = v
+--				end
+--			end
+--			args = {}
+--		end,
 		add = function(origin,split)
 			table.remove(split,1)
 			local last = variables[split[1]]
@@ -392,7 +440,20 @@ local function newParser()
 			variables[split[3]] = BitNOT(tonumber(split[2]))
 		end,
 		[""] = function(origin,split) end,
-		[" "] = function(origin,split) end
+		[" "] = function(origin,split) end,
+		-----
+		call = function(origin,split)
+			local func = syscalls[split[2]]
+			local a = table.pack(func(table.unpack(args)))
+			table.remove(split,1)
+			table.remove(split,1)
+			for i,v in pairs(a) do
+				if split[i] then
+					variables[split[i]] = v
+				end
+			end
+			args = {}
+		end,
 	}
 
 	local function parseLine(line)
@@ -431,6 +492,10 @@ local function newParser()
 		end
 		return true
 	end
+	local function updateConstantVars()
+		variables["termX"],variables["termY"] = term.getSize()
+		variables["curX"],variables["curY"] = term.getCursorPos()
+	end
 	function parse(line)
 		addToQueue(line)
 		local i = 1
@@ -438,6 +503,7 @@ local function newParser()
 			if #queue <= 0 then
 				break
 			end
+			updateConstantVars()
 			local v = queue[1]
 			table.remove(queue,1)
 			local success,line = parseLine(v)
@@ -455,18 +521,15 @@ local function newParser()
 	return parse
 end
 local args = {...}
-if pcall(debug.getlocal, 4, 1) then --check from https://stackoverflow.com/a/49376823 (modified)
-	return newParser
-else
-	local path = ""
-	for i,v in pairs(args) do
-		if i ~= 1 then
-			path = path.." "
-		end
-		path = path..v
+local path = ""
+for i,v in pairs(args) do
+	if i ~= 1 then
+		path = path.." "
 	end
-	local file = open(path,"r")
-	local dat = readall(file)
-	close(file)
-	newParser()(dat)
+	path = path..v
 end
+local file = open(path,"r")
+local dat = readall(file)
+close(file)
+newParser()(dat)
+

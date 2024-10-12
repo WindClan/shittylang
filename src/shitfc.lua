@@ -153,7 +153,7 @@ local function newParser()
 		elseif arg1 == "var" or arg1 == "variable" then
 			newstr = variables[split[2]]
 		elseif arg1 == "func" or arg1 == "function" then
-			newstr = function() parse(variables[split[2]]) end
+			newstr = function() addToQueue(variables[split[2]]) end
 		elseif arg1 == "true" then
 			newstr = true
 		elseif arg1 == "false" then
@@ -354,7 +354,7 @@ local function newParser()
 		forever = function(origin,split)
 			inForeverLoop = true
 			while inForeverLoop do
-				parse(variables[split[2]])
+				addToQueue(variables[split[2]])
 			end
 		end,
 		input = function(origin,split)
@@ -362,7 +362,7 @@ local function newParser()
 		end,
 		repeatuntil = function(origin,split)
 			while variables[split[3]] ~= variables[split[4]] do
-				parse(variables[split[2]])
+				addToQueue(variables[split[2]])
 			end
 		end,
 		["break"] = function(origin,split)
@@ -373,58 +373,58 @@ local function newParser()
 		end,
 		greater = function(origin,split)
 			if variables[split[2]] > variables[split[3]] then
-				parse(c)
+				addToQueue(c)
 			elseif split[5] then
-				parse(variables[split[5]])
+				addToQueue(variables[split[5]])
 			end
 		end,
 		lesser = function(origin,split)
 			if variables[split[2]] < variables[split[3]] then
-				parse(variables[split[4]])
+				addToQueue(variables[split[4]])
 			elseif split[5] then
-				parse(variables[split[5]])
+				addToQueue(variables[split[5]])
 			end
 		end,
 		greaterequal = function(origin,split)
 			if variables[split[2]] >= variables[split[3]] then
-				parse(variables[split[4]])
+				addToQueue(variables[split[4]])
 			elseif split[5] then
-				parse(variables[split[5]])
+				addToQueue(variables[split[5]])
 			end
 		end,
 		lesserequal = function(origin,split)
 			if variables[split[2]] <= variables[split[3]] then
-				parse(variables[split[4]])
+				addToQueue(variables[split[4]])
 			elseif split[5] then
-				parse(variables[split[5]])
+				addToQueue(variables[split[5]])
 			end
 		end,
 		equal = function(origin,split)
 			if variables[split[2]] == variables[split[3]] then
-				parse(variables[split[4]])
+				addToQueue(variables[split[4]])
 			elseif split[5] then
-				parse(variables[split[5]])
+				addToQueue(variables[split[5]])
 			end
 		end,
 		exists = function(origin,split)
 			if variables[split[2]] ~= nil then
-				parse(variables[split[3]])
+				addToQueue(variables[split[3]])
 			elseif split[4] then
-				parse(variables[split[4]])
+				addToQueue(variables[split[4]])
 			end
 		end,
 		["ifand"] = function(origin,split)
 			if variables[split[2]] and variables[split[3]] then
-				parse(variables[split[4]])
+				addToQueue(variables[split[4]])
 			elseif split[5] then
-				parse(variables[split[5]])
+				addToQueue(variables[split[5]])
 			end
 		end,
 		["ifor"] = function(origin,split)
 			if variables[split[2]] or variables[split[3]] then
-				parse(variables[split[4]])
+				addToQueue(variables[split[4]])
 			elseif split[5] then
-				parse(variables[split[5]])
+				addToQueue(variables[split[5]])
 			end
 		end,
 		["and"] = function(origin,split)
